@@ -1,5 +1,7 @@
 {
   "compilerOptions": {
+    "jsx": "react",
+    "jsxFactory": "React.createElement",
     "target": "es2019",
     "moduleResolution": "node",
     "module": "commonjs",
