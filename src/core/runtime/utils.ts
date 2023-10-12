@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { CSSProperties } from 'react';
 import * as t from '../types';
 import { memoize } from '../memoize/memoize';
@@ -34,11 +35,10 @@ export function compareTypeof(left: unknown, right: unknown): boolean {
   return typeof left === right;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function isEqual(left: any, right: any): boolean {
+export function isEqual(left: any, right: any, deep = 0): { status: boolean; deep: number } {
   // Verificar se os tipos são estritamente iguais
   if (typeof left !== typeof right) {
-    return false;
+    return { status: false, deep };
   }
 
   // Verificar se ambos são objetos
@@ -47,17 +47,20 @@ export function isEqual(left: any, right: any): boolean {
     const keysLeft = Object.keys(left);
     const keysRight = Object.keys(right);
     if (keysLeft.length !== keysRight.length) {
-      return false;
+      return { status: false, deep };
     }
     for (const key of keysLeft) {
-      if (!isEqual(left[key], right[key])) {
-        return false;
+      console.log({ key });
+      const isTruly = isEqual(left[key], right[key], deep + 1);
+      if (isTruly.status) {
+        return { status: true, deep: isTruly.deep };
       }
     }
 
-    return true;
+    return { status: false, deep };
   }
 
   // Comparação simples para outros tipos de dados
-  return left === right;
+  const status = left === right;
+  return { status, deep };
 }

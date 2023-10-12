@@ -5,6 +5,7 @@ import { isEqual } from './utils';
 type ResultElement = t.NodeElementType | Text;
 
 export function createElement(node: t.NodeType): ResultElement {
+  // to-do: when renderer twice times we lose other children
   if ($nodeCache.has(node)) return $nodeCache.get(node);
   if (typeof node === 'string') {
     return document.createTextNode(node);
@@ -36,7 +37,9 @@ export function updateElement(
     $parent.appendChild(createElement(newNode));
     return true;
   }
-  if (changed(newNode, oldNode) && newNode) {
+  const isChanged = changed(newNode, oldNode);
+  if (isChanged.status && newNode) {
+    console.log(isChanged, newNode, $parent.childNodes[index]);
     $parent.replaceChild(createElement(newNode), $parent.childNodes[index]);
     return true;
   }
@@ -49,8 +52,8 @@ export function updateElement(
   }
   return false;
 }
-function changed(node1?: t.NodeType, node2?: t.NodeType): boolean {
-  return !isEqual(node1, node2);
+function changed(node1?: t.NodeType, node2?: t.NodeType): { status: boolean; deep: number } {
+  return isEqual(node1, node2);
 }
 export function createNode<T extends HTMLElement>(
   tagName: t.HTMLElementType,
